@@ -57,14 +57,3 @@ aggErr := xerrors.Aggregate(code, xerrors.Data{"count": 2}, err1, err2)
 // Access nested errors
 nested := aggErr.Nested()
 ```
-
-
-## Error Types
-
-- `TypeSimple` - simple error created with `New`
-- `TypeWrapper` - error that wraps another error, created with `Wrap`
-- `TypeAggregator` - error that contains multiple errors, created with `Aggregate`
-
-## Data Fields
-
-`Data()` returns error metadata excluding internal fields used by `Wrap` and `Aggregate`.
