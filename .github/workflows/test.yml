@@ -23,15 +23,14 @@ jobs:
       - name: Display coverage
         run: go tool cover -func=coverage.out
 
-      - name: Coverage Badge
-        uses: schneegans/coverage-badge-action@v1
-        with:
-          coverage-file: coverage.out
-          badge-file: .badges/coverage.svg
+      - name: Generate coverage badge
+        run: |
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | grep -oP '\d+\.\d+(?=%)')
+          mkdir -p .badges
+          curl -s "https://img.shields.io/badge/coverage-${COVERAGE}%25-brightgreen" -o .badges/coverage.svg
 
       - name: Commit coverage badge
         run: |
-          mkdir -p .badges
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .badges/coverage.svg
