@@ -7,16 +7,17 @@ import (
 )
 
 var CodeEntityNotFound = xerrors.NewCode("storage::entity-not-found", xerrors.Data{
-	"description": "entity was not found in the database",
+	"description": "Entity was not found",
+	"http.code":   404,
 })
 
 func FindUserByID(id any) error {
-	return xerrors.New(CodeEntityNotFound, 
-        xerrors.Data{
-            "entity-type": "user",
-            "entity-id": id,
-        },
-    )
+	return xerrors.New(CodeEntityNotFound,
+		xerrors.Data{
+			"entity-type": "user",
+			"entity-id":   id,
+		},
+	)
 }
 
 func main() {
