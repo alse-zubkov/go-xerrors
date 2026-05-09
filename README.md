@@ -1,6 +1,8 @@
-# go-xerrors
+<p align="center">
+    <img src=".badges/coverage.svg">
+</p>
 
-![Coverage](.badges/coverage.svg)
+# go-xerrors
 
 Simple library for code-based errors enriched with data and metadata.
 
