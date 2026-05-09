@@ -22,3 +22,18 @@ jobs:
 
       - name: Display coverage
         run: go tool cover -func=coverage.out
+
+      - name: Coverage Badge
+        uses: schneegans/coverage-badge-action@v1
+        with:
+          coverage-file: coverage.out
+          badge-file: .badges/coverage.svg
+
+      - name: Commit coverage badge
+        run: |
+          mkdir -p .badges
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .badges/coverage.svg
+          git diff --staged --quiet || git commit -m "Update coverage badge"
+          git push

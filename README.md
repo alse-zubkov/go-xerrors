@@ -1,5 +1,7 @@
 # go-xerrors
 
+![Coverage](.badges/coverage.svg)
+
 Simple library for code-based errors enriched with data and metadata.
 
 ## Features
