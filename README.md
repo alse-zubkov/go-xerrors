@@ -1,5 +1,6 @@
 <p align="center">
     <img src=".badges/coverage.svg">
+    <img src="https://img.shields.io/badge/version-v0.0.1-blue">
 </p>
 
 # go-xerrors
