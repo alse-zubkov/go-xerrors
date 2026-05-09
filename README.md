@@ -17,7 +17,7 @@ Simple library for code-based errors enriched with data and metadata.
 ## Installation
 
 ```bash
-go get github.com/alse-zubkov/go-xerrors
+go get github.com/alse-zubkov/go-xerrors VERSION
 ```
 
 ## Quick Start
