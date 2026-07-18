@@ -29,10 +29,15 @@ const (
 // Error represents an error with code, type, and data.
 type Error interface {
 	error
-	Unwrap() error
+	// Code returns error code
 	Code() Code
+	// Type returns error type
 	Type() Type
+	// Data returns error attributes
 	Data() Data
+	// Unwrap returns source error in case of TypeWrapper
+	Unwrap() error
+	// Nested returns a slice of aggregated Error(s)
 	Nested() []Error
 }
 

@@ -80,7 +80,15 @@ Find more examples [here](examples/).
 Wrapped errors are created with `Wrap()` to preserve and chain underlying errors. Supports `errors.Unwrap()` for error traversal.
 
 ```go
-// example code here
+code := xerrors.NewCode("entity-not-found", nil)
+err := xerrors.Wrap(
+    code,
+    xerrors.Data{
+        "entity-type": "user", 
+        "entity-id": 123,
+    },
+    errors.New("no rows")
+)
 ```
 
 Find more examples [here](examples/).
@@ -88,7 +96,15 @@ Find more examples [here](examples/).
 ### Aggregated Errors
 Aggregated errors are created with `Aggregate()` to collect multiple related errors together, such as validation errors from multiple fields.
 ```go
-// example code here
+xerrs := []xerrors.Error{
+    xerrors.New(CodeFieldRequired, xerrors.Data{"field": "name"}),
+    xerrors.New(CodeFieldWrongValue, xerrors.Data{"field": "id", "expected-format":"uuid"}),
+}
+aggError := xerrors.Aggregate(
+    CodeManifestInvalid,
+    xerrors.Data{},
+    xerrs...,
+)
 ```
 
 Find more examples [here](examples/).
