@@ -1,13 +1,15 @@
-package xerrors
+package xerrors_test
 
 import (
 	"errors"
 	"testing"
+
+	"github.com/alse-zubkov/go-xerrors"
 )
 
 func TestNewCode(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		code := NewCode("test::code", Data{"key": "value"})
+		code := xerrors.NewCode("test::code", xerrors.Data{"key": "value"})
 		if code == nil {
 			t.Fatal("expected non-nil code")
 		}
@@ -22,22 +24,22 @@ func TestNewCode(t *testing.T) {
 				t.Fatal("expected panic for nil key")
 			}
 		}()
-		NewCode(nil, nil)
+		xerrors.NewCode(nil, nil)
 	})
 }
 
 func TestNew(t *testing.T) {
-	code := NewCode("test::code", nil)
+	code := xerrors.NewCode("test::code", nil)
 
 	t.Run("success", func(t *testing.T) {
-		err := New(code, Data{"key": "value"})
+		err := xerrors.New(code, xerrors.Data{"key": "value"})
 		if err == nil {
 			t.Fatal("expected non-nil error")
 		}
 		if err.Code() != code {
 			t.Fatal("unexpected code")
 		}
-		if err.Type() != TypeSimple {
+		if err.Type() != xerrors.TypeSimple {
 			t.Fatal("expected TypeSimple")
 		}
 	})
@@ -48,11 +50,11 @@ func TestNew(t *testing.T) {
 				t.Fatal("expected panic for nil code")
 			}
 		}()
-		New(nil, nil)
+		xerrors.New(nil, nil)
 	})
 
 	t.Run("nil_data_ok", func(t *testing.T) {
-		err := New(code, nil)
+		err := xerrors.New(code, nil)
 		if err == nil {
 			t.Fatal("expected non-nil error")
 		}
@@ -64,50 +66,50 @@ func TestNew(t *testing.T) {
 				t.Fatal("expected panic for internal fields in data")
 			}
 		}()
-		New(code, Data{InternalDataKeyWrappedError: "value"})
+		xerrors.New(code, xerrors.Data{xerrors.InternalDataKeyWrappedError: "value"})
 	})
 }
 
 func TestWrap(t *testing.T) {
-	code := NewCode("test::code", nil)
+	code := xerrors.NewCode("test::code", nil)
 	innerErr := errors.New("inner error")
 
 	t.Run("success", func(t *testing.T) {
-		err := Wrap(code, Data{"key": "value"}, innerErr)
+		err := xerrors.Wrap(code, xerrors.Data{"key": "value"}, innerErr)
 		if err == nil {
 			t.Fatal("expected non-nil error")
 		}
 		if err.Code() != code {
 			t.Fatal("unexpected code")
 		}
-		if err.Type() != TypeWrapper {
+		if err.Type() != xerrors.TypeWrapper {
 			t.Fatal("expected TypeWrapper")
 		}
 	})
 
 	t.Run("unwrap_returns_inner_error", func(t *testing.T) {
-		err := Wrap(code, nil, innerErr)
+		err := xerrors.Wrap(code, nil, innerErr)
 		if errors.Unwrap(err) != innerErr {
 			t.Fatal("expected Unwrap() to return inner error")
 		}
 	})
 
 	t.Run("data_excludes_internal_key", func(t *testing.T) {
-		err := Wrap(code, Data{"key": "value"}, innerErr)
-		if _, ok := err.Data()[InternalDataKeyWrappedError]; ok {
+		err := xerrors.Wrap(code, xerrors.Data{"key": "value"}, innerErr)
+		if _, ok := err.Data()[xerrors.InternalDataKeyWrappedError]; ok {
 			t.Fatal("Data() should not contain internal key")
 		}
 	})
 
 	t.Run("nested_returns_nil", func(t *testing.T) {
-		err := Wrap(code, nil, innerErr)
+		err := xerrors.Wrap(code, nil, innerErr)
 		if err.Nested() != nil {
 			t.Fatal("expected Nested() to return nil for wrapper")
 		}
 	})
 
 	t.Run("unwrapped_simple_error_returns_nil", func(t *testing.T) {
-		simpleErr := New(code, nil)
+		simpleErr := xerrors.New(code, nil)
 		if simpleErr.Unwrap() != nil {
 			t.Fatal("expected Unwrap() to return nil for simple error")
 		}
@@ -119,7 +121,7 @@ func TestWrap(t *testing.T) {
 				t.Fatal("expected panic for nil code")
 			}
 		}()
-		Wrap(nil, nil, innerErr)
+		xerrors.Wrap(nil, nil, innerErr)
 	})
 
 	t.Run("nil_err_panics", func(t *testing.T) {
@@ -128,7 +130,7 @@ func TestWrap(t *testing.T) {
 				t.Fatal("expected panic for nil err")
 			}
 		}()
-		Wrap(code, nil, nil)
+		xerrors.Wrap(code, nil, nil)
 	})
 
 	t.Run("data_with_internal_fields_panics", func(t *testing.T) {
@@ -137,30 +139,30 @@ func TestWrap(t *testing.T) {
 				t.Fatal("expected panic for internal fields in data")
 			}
 		}()
-		Wrap(code, Data{InternalDataKeyAggregatedErrors: "value"}, innerErr)
+		xerrors.Wrap(code, xerrors.Data{xerrors.InternalDataKeyAggregatedErrors: "value"}, innerErr)
 	})
 }
 
 func TestAggregate(t *testing.T) {
-	code := NewCode("test::code", nil)
-	err1 := New(code, Data{"err": "1"})
-	err2 := New(code, Data{"err": "2"})
+	code := xerrors.NewCode("test::code", nil)
+	err1 := xerrors.New(code, xerrors.Data{"err": "1"})
+	err2 := xerrors.New(code, xerrors.Data{"err": "2"})
 
 	t.Run("success", func(t *testing.T) {
-		err := Aggregate(code, Data{"key": "value"}, err1, err2)
+		err := xerrors.Aggregate(code, xerrors.Data{"key": "value"}, err1, err2)
 		if err == nil {
 			t.Fatal("expected non-nil error")
 		}
 		if err.Code() != code {
 			t.Fatal("unexpected code")
 		}
-		if err.Type() != TypeAggregator {
+		if err.Type() != xerrors.TypeAggregator {
 			t.Fatal("expected TypeAggregator")
 		}
 	})
 
 	t.Run("nested_returns_errors", func(t *testing.T) {
-		err := Aggregate(code, nil, err1, err2)
+		err := xerrors.Aggregate(code, nil, err1, err2)
 		nested := err.Nested()
 		if len(nested) != 2 {
 			t.Fatalf("expected 2 nested errors, got %d", len(nested))
@@ -171,14 +173,14 @@ func TestAggregate(t *testing.T) {
 	})
 
 	t.Run("data_excludes_internal_key", func(t *testing.T) {
-		err := Aggregate(code, Data{"key": "value"}, err1)
-		if _, ok := err.Data()[InternalDataKeyAggregatedErrors]; ok {
+		err := xerrors.Aggregate(code, xerrors.Data{"key": "value"}, err1)
+		if _, ok := err.Data()[xerrors.InternalDataKeyAggregatedErrors]; ok {
 			t.Fatal("Data() should not contain internal key")
 		}
 	})
 
 	t.Run("unwrap_returns_nil", func(t *testing.T) {
-		err := Aggregate(code, nil, err1, err2)
+		err := xerrors.Aggregate(code, nil, err1, err2)
 		if err.Unwrap() != nil {
 			t.Fatal("expected Unwrap() to return nil for aggregator")
 		}
@@ -190,7 +192,7 @@ func TestAggregate(t *testing.T) {
 				t.Fatal("expected panic for nil code")
 			}
 		}()
-		Aggregate(nil, nil, err1)
+		xerrors.Aggregate(nil, nil, err1)
 	})
 
 	t.Run("nil_err_panics", func(t *testing.T) {
@@ -199,11 +201,11 @@ func TestAggregate(t *testing.T) {
 				t.Fatal("expected panic for nil err")
 			}
 		}()
-		Aggregate(code, nil, nil)
+		xerrors.Aggregate(code, nil, nil)
 	})
 
 	t.Run("empty_errs_ok", func(t *testing.T) {
-		err := Aggregate(code, nil)
+		err := xerrors.Aggregate(code, nil)
 		if err == nil {
 			t.Fatal("expected non-nil error")
 		}
@@ -218,6 +220,6 @@ func TestAggregate(t *testing.T) {
 				t.Fatal("expected panic for internal fields in data")
 			}
 		}()
-		Aggregate(code, Data{InternalDataKeyWrappedError: "value"}, err1)
+		xerrors.Aggregate(code, xerrors.Data{xerrors.InternalDataKeyWrappedError: "value"}, err1)
 	})
 }

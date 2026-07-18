@@ -25,17 +25,29 @@ go get github.com/alse-zubkov/go-xerrors VERSION
 ```go
 import "github.com/alse-zubkov/go-xerrors"
 
-// Create error code
+// Create error code with metadata (optional)
 var code := xerrors.NewCode("example", xerrors.Data{"field": "description"})
 
-
 func foo() error {
-    // Create simple error with data
+    // Use code as base to create an error with data (optional)
     return xerrors.New(code, xerrors.Data{"key": "value"})
 }
 
-var err := foo()
+err := foo()
 ```
+
+## How to use (API)
+
+Main types and interfaces:
+* `type Data map[string]any` is used to store _metadata_ and _data_
+* `type CodeKey any` is an identifier for error codes
+* `type Code interface` represents an error code with a `CodeKey` and _metadata_
+* `type Type string` the type of an error (_Simple_, _Wrapper_, _Aggregator_)
+* `type Error interface` represents an error with `Code`, `Type`, and _data_
+
+Main functions:
+* `NewCode()` to create error code with `CodeKey` and _metadata_
+* `New()`, `Wrap()`, `Aggregate()` to create new error with corresponding `Type`
 
 ## Error Codes
 
@@ -68,7 +80,15 @@ Find more examples [here](examples/).
 Wrapped errors are created with `Wrap()` to preserve and chain underlying errors. Supports `errors.Unwrap()` for error traversal.
 
 ```go
-// example code here
+code := xerrors.NewCode("entity-not-found", nil)
+err := xerrors.Wrap(
+    code,
+    xerrors.Data{
+        "entity-type": "user", 
+        "entity-id": 123,
+    },
+    errors.New("no rows")
+)
 ```
 
 Find more examples [here](examples/).
@@ -76,7 +96,15 @@ Find more examples [here](examples/).
 ### Aggregated Errors
 Aggregated errors are created with `Aggregate()` to collect multiple related errors together, such as validation errors from multiple fields.
 ```go
-// example code here
+xerrs := []xerrors.Error{
+    xerrors.New(CodeFieldRequired, xerrors.Data{"field": "name"}),
+    xerrors.New(CodeFieldWrongValue, xerrors.Data{"field": "id", "expected-format":"uuid"}),
+}
+aggError := xerrors.Aggregate(
+    CodeManifestInvalid,
+    xerrors.Data{},
+    xerrs...,
+)
 ```
 
 Find more examples [here](examples/).

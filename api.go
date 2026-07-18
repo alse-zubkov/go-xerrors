@@ -5,9 +5,11 @@ import "fmt"
 const InternalDataKeyWrappedError = "xerrors::wrapped-error"
 const InternalDataKeyAggregatedErrors = "xerrors::aggregated-errors"
 
-var internalValueOperation = "Operation"
-var internalValueValues = "Values"
-var internalValueMBNN = "must be not nil"
+const (
+	internalValueOperation = "Operation"
+	internalValueValues    = "Values"
+	internalValueMBNN      = "must be not nil"
+)
 
 var internalCodeIllegalValue = &codeBase{key: "xerrors::illegal-value", metadata: nil}
 
@@ -66,9 +68,9 @@ func validateNullValue(arg string, value any, valErrs Data) {
 }
 
 func validateDataOnSystemFields(value Data, valErrs Data) {
-    if value == nil {
-        return
-    }
+	if value == nil {
+		return
+	}
 	_, e1 := value[InternalDataKeyWrappedError]
 	_, e2 := value[InternalDataKeyAggregatedErrors]
 	if e1 || e2 {
