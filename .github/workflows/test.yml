@@ -28,7 +28,7 @@ jobs:
         run: |
           COVERAGE=$(go tool cover -func=coverage.out | grep total | grep -oP '\d+\.\d+(?=%)')
           mkdir -p .badges
-          curl -s "https://img.shields.io/badge/coverage-${COVERAGE}%25-brightgreen" -o .badges/coverage.svg
+          curl -s "https://badgen.net/static/coverage/${COVERAGE}%25/green" -o .badges/coverage.svg
 
       - name: Commit coverage badge
         run: |
