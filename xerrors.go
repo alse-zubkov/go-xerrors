@@ -59,22 +59,21 @@ func (c *codeBase) Metadata() Data {
 
 type errorBase struct {
 	code Code
-    t    Type
+	t    Type
 	data Data
 }
+
 // Error implements the error interface.
 func (e *errorBase) Error() string {
+
 	if e.code == nil {
 		return "Xerror{nil}"
 	}
-	if len(e.data) < 1 {
+	if len(e.data) < 1 || e.Data() == nil {
 		return fmt.Sprintf("Xerror{%v}", e.code.Key())
 	}
-	userData := e.Data()
-	if userData == nil {
-		return fmt.Sprintf("Xerror{%v}", e.code.Key())
-	}
-	return fmt.Sprintf("Xerror{%v;%v}", e.code.Key(), userData)
+
+	return fmt.Sprintf("Xerror{%v;%v}", e.code.Key(), e.Data())
 }
 
 // Code returns the error code.
@@ -104,10 +103,7 @@ func (e *errorBase) Data() Data {
 
 // Unwrap returns the wrapped error for TypeWrapper errors.
 func (e *errorBase) Unwrap() error {
-	if e.t != TypeWrapper {
-		return nil
-	}
-	if e.data == nil {
+	if e.t != TypeWrapper || e.data == nil {
 		return nil
 	}
 	if err, ok := e.data[InternalDataKeyWrappedError]; ok {
@@ -118,10 +114,7 @@ func (e *errorBase) Unwrap() error {
 
 // Nested returns the nested errors for TypeAggregator errors.
 func (e *errorBase) Nested() []Error {
-	if e.t != TypeAggregator {
-		return nil
-	}
-	if e.data == nil {
+	if e.t != TypeAggregator || e.data == nil {
 		return nil
 	}
 	if errs, ok := e.data[InternalDataKeyAggregatedErrors]; ok {

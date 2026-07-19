@@ -2,6 +2,7 @@ package xerrors_test
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 
 	"github.com/alse-zubkov/go-xerrors"
@@ -9,12 +10,17 @@ import (
 
 func TestNewCode(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		code := xerrors.NewCode("test::code", xerrors.Data{"key": "value"})
+		key := "test::code"
+		metadata := xerrors.Data{"key": "value"}
+		code := xerrors.NewCode(key, metadata)
 		if code == nil {
 			t.Fatal("expected non-nil code")
 		}
-		if code.Metadata() == nil {
-			t.Fatal("expected non-nil metadata")
+		if code.Key() != key {
+			t.Fatalf("wrong key, expected: %v, actual: %v", key, code.Key())
+		}
+		if !reflect.DeepEqual(code.Metadata(), metadata) {
+			t.Fatalf("wrong metadata, expected: %v, actual: %v", metadata, code.Metadata())
 		}
 	})
 
@@ -57,6 +63,9 @@ func TestNew(t *testing.T) {
 		err := xerrors.New(code, nil)
 		if err == nil {
 			t.Fatal("expected non-nil error")
+		}
+		if err.Data() != nil {
+			t.Fatalf("wrong error data, expected: %v, actual: %v", nil, err.Data())
 		}
 	})
 
@@ -221,5 +230,23 @@ func TestAggregate(t *testing.T) {
 			}
 		}()
 		xerrors.Aggregate(code, xerrors.Data{xerrors.InternalDataKeyWrappedError: "value"}, err1)
+	})
+}
+
+func TestErrorString(t *testing.T) {
+	code := xerrors.NewCode("test::code", nil)
+	t.Run("error without data", func(t *testing.T) {
+		err := xerrors.New(code, nil)
+		expectedErrorStr := "Xerror{test::code}"
+		if expectedErrorStr != err.Error() {
+			t.Fatalf("wrong error string, expected: %v, actual: %v", expectedErrorStr, err.Error())
+		}
+	})
+	t.Run("error with data", func(t *testing.T) {
+		err := xerrors.New(code, xerrors.Data{"key": "value"})
+		expectedErrorStr := "Xerror{test::code;map[key:value]}"
+		if expectedErrorStr != err.Error() {
+			t.Fatalf("wrong error string, expected: %v, actual: %v", expectedErrorStr, err.Error())
+		}
 	})
 }
