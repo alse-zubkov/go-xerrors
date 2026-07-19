@@ -1,7 +1,7 @@
 <p align="center">
     <img src=".badges/coverage.svg">
-    <img src="https://badgen.net/github/license/alse-zubkov/go-xerrors">
-    <img src="https://badgen.net/github/release/alse-zubkov/go-xerrors/stable">
+    <img src="https://badgen.net/github/license/alse-zubkov/go-xerrors?cache=300">
+    <img src="https://badgen.net/github/release/alse-zubkov/go-xerrors/stable?cache=300">
 </p>
 
 # go-xerrors
