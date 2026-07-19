@@ -1,6 +1,7 @@
 <p align="center">
     <img src=".badges/coverage.svg">
-    <img src="https://img.shields.io/badge/version-v1.0.0-blue">
+    <img src="https://badgen.net/github/license/alse-zubkov/go-xerrors">
+    <img src="https://badgen.net/github/release/alse-zubkov/go-xerrors/stable">
 </p>
 
 # go-xerrors
